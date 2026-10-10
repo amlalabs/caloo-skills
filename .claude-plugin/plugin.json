@@ -1,0 +1,19 @@
+{
+  "name": "caloo",
+  "version": "1.0.0",
+  "description": "Set up and maintain a Caloo booking page from your agent, or book a time on someone's Caloo page.",
+  "author": {
+    "name": "Caloo",
+    "url": "https://caloo.ai"
+  },
+  "homepage": "https://caloo.ai/skills",
+  "license": "MIT",
+  "keywords": ["scheduling", "calendar", "booking", "mcp"],
+  "mcpServers": {
+    "caloo": {
+      "type": "http",
+      "url": "https://caloo.ai/mcp"
+    }
+  },
+  "repository": "https://github.com/amlalabs/caloo-skills"
+}

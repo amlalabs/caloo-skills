@@ -1,0 +1,15 @@
+{
+  "name": "caloo",
+  "owner": {
+    "name": "Amla Labs",
+    "url": "https://github.com/amlalabs"
+  },
+  "plugins": [
+    {
+      "name": "caloo",
+      "source": "./",
+      "description": "Set up and maintain a Caloo booking page from your agent, or book a time on someone's Caloo page.",
+      "version": "1.0.0"
+    }
+  ]
+}
