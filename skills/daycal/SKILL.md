@@ -1,7 +1,7 @@
 ---
 name: daycal
-description: Daycal gives a person a page where other people can book time with them, and gets their real schedule right (trips in other time zones, holidays, Friday cutoffs, focus blocks, daily limits, several calendars) because they just tell their AI assistant. Use this skill for either of two jobs. (1) Owner job - the person wants a page where others can book them, or wants to change theirs ("let people book time with me", "I'm in London next week", "no calls after 3 on Fridays", "why can't anyone book Tuesday?", "move me off Calendly"); you set it up and keep it right through the Daycal MCP server. (2) Invitee job - the person wants to book time with someone who sent them a Daycal link (https://daycal.io/<handle>); you find a time over the public API, get their yes, and book on the page. Triggers - Daycal, daycal.io, booking page, booking link, scheduling link, "book a time with", "let people book me", importing from Calendly or Cal.com, rules.js.
-version: 2.1.2
+description: Daycal gives a person a page where other people can book time with them, and gets their real schedule right (trips in other time zones, holidays, Friday cutoffs, focus blocks, daily limits, several calendars) because they just tell their AI assistant. Use this skill for either of two jobs. (1) Owner job - the person wants a page where others can book them, or wants to change theirs ("let people book time with me", "I'm in London next week", "no calls after 3 on Fridays", "why can't anyone book Tuesday?", "move me off Calendly"); you set it up and keep it right through Daycal's tools, over MCP or plain REST. (2) Invitee job - the person wants to book time with someone who sent them a Daycal link (https://daycal.io/<handle>); you find a time over the public API, get their yes, and book on the page. Triggers - Daycal, daycal.io, booking page, booking link, scheduling link, "book a time with", "let people book me", importing from Calendly or Cal.com, rules.js.
+version: 2.1.3
 license: MIT
 ---
 
@@ -15,7 +15,7 @@ The owner never fills in a settings screen: they tell you, their assistant, and 
 schedule. Just say it.
 
 Under the hood, availability is a short `rules.js` written against the daycal standard library (the stdlib). You
-write and maintain it through the Daycal MCP tools, always previewing and getting the owner's go-ahead before
+write and maintain it through the Daycal tools (over MCP, or plain REST), always previewing and getting the owner's go-ahead before
 pushing it live. Everything an owner would click elsewhere is a tool call you make. The owner can read rules.js, so keep
 it short and plain.
 
@@ -27,7 +27,7 @@ you build.
 
 ```
 Is the person asking about THEIR OWN booking page (create, change, fix, share)?
-├─ yes → Owner job. You need the Daycal MCP server (https://daycal.io/mcp).
+├─ yes → Owner job. You need the Daycal tools: MCP (https://daycal.io/mcp) or REST with an API token.
 │        ├─ first time, no page yet ............. references/setup.md, then references/stdlib.md
 │        ├─ "change my hours / add a trip / block X" references/patterns.md (find the closest case)
 │        ├─ "why is 3pm not bookable?" / errors .. references/troubleshooting.md
@@ -59,10 +59,17 @@ References (open only the one you need):
 
 ## Owner workflow, tool by tool
 
-If the Daycal tools are not available, ask the owner to add the MCP server `https://daycal.io/mcp`
-(Claude Code: `claude mcp add --transport http daycal https://daycal.io/mcp`). Signing in asks for their
-email and a 6-digit code from their inbox; that is the whole signup. Agents that cannot add MCP servers
-use the REST API with a token the owner creates at `https://daycal.io/token` (see `https://daycal.io/llms.txt`).
+If the Daycal tools are not available:
+
+- No MCP client (you only make HTTP requests): every tool below is also a REST call, with the same arguments and
+  the same answers. Ask the owner to open `https://daycal.io/token`, sign in with their email and a 6-digit code
+  from their inbox (that is the whole signup), and give you the token shown once. Then call a tool with
+  `POST https://daycal.io/api/me/tools/<tool name>`, `Authorization: Bearer <token>` and its arguments as a JSON
+  body; `GET https://daycal.io/api/me/tools` lists every tool with the JSON Schema of its arguments, and returns
+  the `instructions` an MCP client gets when it connects: read and follow them. Details in references/setup.md,
+  step 0.
+- MCP client: ask the owner to add the MCP server `https://daycal.io/mcp` (Claude Code:
+  `claude mcp add --transport http daycal https://daycal.io/mcp`). Signing in asks for the same email and code.
 
 1. `get_types` — read it first, every session. It returns `daycal.d.ts`, the stdlib reference, a starter
    rules.js, and `skill_version`. If it says this skill is out of date, tell the owner once and carry on.

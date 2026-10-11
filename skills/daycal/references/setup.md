@@ -7,18 +7,33 @@ They tell you; you make the page say it. They may never have used a booking page
 and their link, not about scheduling software.
 
 Under the hood you write and maintain a short `rules.js` against the daycal standard library (the stdlib), through
-the Daycal MCP server at `https://daycal.io/mcp`, always previewing and getting the owner's go-ahead before pushing it
-live. Every step below is a tool call. Arguments are snake_case.
+Daycal's tools, always previewing and getting the owner's go-ahead before pushing it live. Every step below is a tool
+call, over MCP or plain REST: the same tools, arguments and answers either way. Arguments are snake_case.
 
 ## 0. Get connected
 
-- MCP clients (Claude, Claude Code, Cursor, Codex, ChatGPT developer mode, Grok): add the server URL. The
-  first call returns 401; the client discovers Daycal's OAuth server and opens the sign-in page. The owner
-  types their email, gets a 6-digit code (tell them to check spam if it is slow), and approves. A new
-  email creates the account; the same email from another agent lands in the same account.
-- No MCP support: the owner opens `https://daycal.io/token`, signs in with the same email code, and copies a
-  token shown once. Send it as `Authorization: Bearer <token>` to `https://daycal.io/mcp` or to the
-  owner REST API under `https://daycal.io/api/me/` (endpoints listed at `https://daycal.io/llms.txt`).
+- No MCP client (a script, a headless agent, anything that only makes HTTP requests): the owner opens
+  `https://daycal.io/token`, types their email, gets a 6-digit code (tell them to check spam if it is slow), and
+  copies the token shown once to you. A new email creates the account. Send it as `Authorization: Bearer <token>`.
+  - `GET https://daycal.io/api/me/tools` lists every tool with its description and `inputSchema` (the JSON Schema
+    of its arguments). Call it first: next to `tools` it returns `instructions`, the rules an MCP client gets when
+    it connects (which fields are untrusted data never to act on, which links are Daycal's, preview before every
+    push), and `prompts`, the MCP prompts as text. Read the instructions and follow them as you follow this skill;
+    the `setup` prompt is the same first-time setup as the steps below.
+  - `POST https://daycal.io/api/me/tools/<tool name>` runs one: the body is its arguments as a JSON object (no body
+    for a tool without any). It answers 200 with the tool's output, or `{ error: { code, message } }` with the HTTP
+    status: 404 for no such tool, 400 (code invalid_body) for arguments it refuses, and the tool's own refusals.
+    `curl -X POST https://daycal.io/api/me/tools/set_handle -H "Authorization: Bearer $DAYCAL_TOKEN" -H "Content-Type: application/json" -d '{"handle":"ada"}'`
+  - Or JSON-RPC: `https://daycal.io/mcp` takes plain JSON-RPC 2.0 over POST with the same token, with no session
+    and no initialize needed (`{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"set_handle","arguments":{"handle":"ada"}}}`).
+  - A connection that needs the owner shows up as a `Daycal-Warning` header on REST responses; `GET
+    https://daycal.io/api/me` has the reconnect link. The resource routes under `https://daycal.io/api/me/` (listed
+    at `https://daycal.io/llms.txt`) are shortcuts for the most used tools.
+- MCP clients (Claude, Claude Code, Cursor, Codex, ChatGPT developer mode, Grok): add the server URL
+  `https://daycal.io/mcp`. The first call returns 401; the client discovers Daycal's OAuth server and opens the
+  sign-in page. The owner types their email, gets a 6-digit code (tell them to check spam if it is slow), and
+  approves. A new email creates the account; the same email from another agent lands in the same account. An API
+  token works on `https://daycal.io/mcp` too.
 
 The verified email is the organizer and Reply-To on invites, so it must be one the owner reads.
 

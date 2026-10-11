@@ -7,8 +7,8 @@ because you just tell your AI assistant. Any schedule. Just say it.
 The `daycal` [Agent Skill](https://agentskills.io) teaches that assistant both jobs:
 
 - **For the page's owner:** set up the page and keep it right. Under the hood, availability is a short `rules.js`
-  written against the daycal standard library; the assistant writes and maintains it through the Daycal MCP server,
-  always previewing and getting the owner's go-ahead before pushing. Already on Calendly or Cal.com? It imports
+  written against the daycal standard library; the assistant writes and maintains it through Daycal's tools (the
+  MCP server, or the same tools over plain REST with an API token), always previewing and getting the owner's go-ahead before pushing. Already on Calendly or Cal.com? It imports
   the meeting types and hours from there.
 - **For someone booking:** find a time on a person's Daycal page over the public API, confirm it with them, and
   book it on the page itself.
@@ -36,7 +36,8 @@ skills/daycal/
 | No file system       | Paste the SKILL.md URL, or call the `get_skill` tool, which returns SKILL.md and, with a `reference` argument, any references file                                                |
 
 The Claude Code plugin also registers the MCP server; with the other routes, add `https://daycal.io/mcp` to the agent
-yourself.
+yourself. An agent without an MCP client calls the same tools over REST with an API token from
+`https://daycal.io/token` (`POST https://daycal.io/api/me/tools/<tool name>`; see `references/setup.md`, step 0).
 
 ## Development
 
