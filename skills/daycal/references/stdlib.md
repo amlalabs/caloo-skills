@@ -36,7 +36,7 @@ export default defineConfig({
   hours: (day) => weekdays(day, "09:00-17:00"),
   eventTypes: [{ slug: "30min", title: "30 minute chat", duration: dur("30m") }],
   bookInto: ({ accounts }) => accounts.work,
-  booking: { confirmation: "Talk soon!", note: true },
+  booking: { confirmation: "Talk soon!", note: true, reminders: true },
   webhooks: { onBooking: "https://hooks.example.com/daycal" },
 });
 ```
@@ -46,6 +46,9 @@ export default defineConfig({
   overrides and zero-width spaces). Omit it and they see the handle.
 - `booking.confirmation`: text on the confirmation screen and email (the email quotes it on one line).
   `booking.note`: collect an optional note (default true).
+  `booking.reminders`: on Pro, Daycal emails each invitee a reminder 24 hours and 1 hour before the meeting (default
+  true; the free plan sends none either way). `false` turns them off for every booking, those already made included;
+  `true` again resumes the ones still ahead, never ones whose time passed while off (patterns.md, case 15).
 - `webhooks.onBooking`, `webhooks.onCancel`: URLs that receive a JSON POST per booking or cancellation.
 
 ## ctx

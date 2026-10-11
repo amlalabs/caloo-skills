@@ -995,3 +995,55 @@ export default defineConfig({
   ]
 }
 ```
+
+## 15. Turn off reminder emails
+
+On Pro, Daycal emails each invitee a reminder 24 hours and 1 hour before the meeting. An owner who would rather
+not send them (they remind people themselves, or the meetings are informal) says so, and `booking.reminders: false`
+turns them off for every booking, those already made included. Slots do not change. Setting it back to `true` (or
+removing it) sends the reminders still ahead; ones whose time passed while off are never sent late. The free plan
+sends no reminders either way.
+
+```js
+import { defineConfig, weekdays, dur } from "daycal";
+
+export default defineConfig({
+  handle: "chris",
+  name: "Chris Lee",
+  timezone: "America/Los_Angeles",
+  calendars: ({ accounts }) => [accounts.work.primary],
+  hours: (day) => weekdays(day, "09:00-12:00"),
+  eventTypes: [{ slug: "30min", title: "30 minute chat", duration: dur("30m") }],
+  bookInto: ({ accounts }) => accounts.work,
+  // The owner asked Daycal not to email invitees reminders.
+  booking: { reminders: false },
+});
+```
+
+```json
+{
+  "now": "2026-10-19T08:00:00-07:00",
+  "accounts": [{ "connectionId": "c-work", "label": "work", "email": "chris@acme.com", "provider": "google" }],
+  "calendars": [
+    {
+      "connectionId": "c-work",
+      "id": "chris@acme.com",
+      "name": "chris@acme.com",
+      "accessRole": "owner",
+      "primary": true
+    }
+  ],
+  "events": [
+    {
+      "calendarId": "chris@acme.com",
+      "id": "w1",
+      "title": "Standup",
+      "start": "2026-10-21T09:00:00-07:00",
+      "end": "2026-10-21T10:00:00-07:00"
+    }
+  ],
+  "eventType": "30min",
+  "day": "2026-10-21",
+  "expect": ["10:00", "10:30", "11:00", "11:30"]
+}
+```

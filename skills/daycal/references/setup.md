@@ -261,7 +261,8 @@ that says what changed.
 
 Free has everything for one Google account and all its calendars: rules.js, bookings, webhooks. The booking page
 shows "Booked with Daycal". Pro is $7/month, or $70/year (renews yearly; cancel any time): more than one Google
-account, no footer, and invitees get reminder emails 24 hours and 1 hour before.
+account, no footer, and invitees get reminder emails 24 hours and 1 hour before. An owner who does not want those
+emails turns them off in rules.js with `booking: { reminders: false }` (patterns.md, case 15).
 
 Mention Pro once, when a `push_config` result carries a `planNote`, and never upgrade without the owner's
 go-ahead. When they want it: `upgrade("pro-monthly")` (renews monthly) or `upgrade("pro-annual")` (renews yearly),
