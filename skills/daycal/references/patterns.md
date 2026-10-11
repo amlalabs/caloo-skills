@@ -2,14 +2,14 @@
 
 Worked cases. Find the closest one, copy it, adapt names and times, then `preview`. Every case ends with a
 fixture: one day of calendar data and the slot start times the rules produce for one event type, in the
-owner's zone. Caloo's test suite runs each fixture through the real engine, so these numbers are exact.
+owner's zone. Daycal's test suite runs each fixture through the real engine, so these numbers are exact.
 
 Fixture fields: `now`, `accounts` and `calendars` (as `connect` and `list_calendars` see them), `events`
 (provider fields: `selfResponse` is what rules.js sees as `event.response`; omitted fields default to a
 confirmed, busy, accepted, timed event), optional `bookings`, then `eventType`, `day` and `expect`.
 
-All cases are for Chris in `America/Los_Angeles` (UTC-7 in late October 2026) with a `work` Google account
-and, where it matters, a `personal` one.
+All cases are for Chris Lee (`name`, what invitees see; handle `chris`) in `America/Los_Angeles` (UTC-7 in late
+October 2026) with a `work` Google account and, where it matters, a `personal` one.
 
 ## 1. The full example: two accounts, program calendar, lunch, declined, standup overflow
 
@@ -22,10 +22,11 @@ On Tuesday Oct 20: 9:30 and 10:00 collide with the 10:00 review, 11:30's buffer 
 all-day program item do not block.
 
 ```js
-import { defineConfig, weekdays, every, dur } from "caloo";
+import { defineConfig, weekdays, every, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
 
   calendars: ({ accounts }) => [
@@ -151,10 +152,11 @@ export default defineConfig({
 how the page and the fixture show them. The 11:00 London workshop removes 04:00 and 04:30.
 
 ```js
-import { defineConfig, weekdays, dur } from "caloo";
+import { defineConfig, weekdays, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary],
   hours: (day) => {
@@ -202,10 +204,11 @@ Time the calendars do not know about goes in `extraBusy`. `every` repeats a bloc
 `block` adds a one-off. Spread them into one array.
 
 ```js
-import { defineConfig, weekdays, every, block, dur } from "caloo";
+import { defineConfig, weekdays, every, block, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary],
   hours: (day) => weekdays(day, "09:00-17:00"),
@@ -245,10 +248,11 @@ A shared program or team calendar full of all-day markers ("Week 6", "Demo week"
 Keep its timed events, drop its all-day ones.
 
 ```js
-import { defineConfig, weekdays, dur } from "caloo";
+import { defineConfig, weekdays, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary, accounts.work.calendar("Program 2026")],
   hours: (day) => weekdays(day, "09:00-17:00"),
@@ -322,10 +326,11 @@ export default defineConfig({
 weekday" is one branch.
 
 ```js
-import { defineConfig, weekdays, dur } from "caloo";
+import { defineConfig, weekdays, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary],
   hours: (day, { eventType }) => {
@@ -375,10 +380,11 @@ export default defineConfig({
 Check the special day first, then fall through to the normal week.
 
 ```js
-import { defineConfig, weekdays, dur } from "caloo";
+import { defineConfig, weekdays, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary],
   hours: (day) => {
@@ -412,22 +418,30 @@ export default defineConfig({
 
 ## 7. Holidays off
 
-There is no holiday helper yet: list the dates and use `day.is(...dates)`. The same shape handles a
-vacation (`day.between(from, to)`).
+Google holiday calendars ("Holidays in United States", `holidays: true` in `get_calendar_refs`) mark every event
+free, so listing one in `calendars` blocks nothing: a natural `isBusy` ("busy unless free") lets the holiday through,
+and `preview` warns that the calendar never blocks time. List it in `daysOff` instead: any event on it closes the
+whole owner-local day, for every event type, whatever `isBusy` says. Ask the owner which holiday calendars count
+(someone subscribed to another country's holidays may still work those days).
+
+Days the calendar does not know (a bridge day, a vacation) go in `hours`: `day.is(...dates)` or
+`day.between(from, to)` returning `day.off()`.
 
 ```js
-import { defineConfig, weekdays, dur } from "caloo";
-
-const HOLIDAYS = ["2026-11-26", "2026-11-27", "2026-12-24", "2026-12-25", "2027-01-01"];
+import { defineConfig, weekdays, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary],
+  // Every event on the US holiday calendar closes its day.
+  daysOff: ({ accounts }) => accounts.work.calendars.filter((c) => c.holidays),
   hours: (day) => {
-    if (day.is(...HOLIDAYS)) return day.off();
+    if (day.is("2026-11-27")) return day.off(); // the day after Thanksgiving
     return weekdays(day, "09:00-17:00");
   },
+  isBusy: (event) => event.transparency !== "free",
   eventTypes: [{ slug: "30min", title: "30 minute chat", duration: dur("30m") }],
   bookInto: ({ accounts }) => accounts.work,
 });
@@ -444,9 +458,29 @@ export default defineConfig({
       "name": "chris@acme.com",
       "accessRole": "owner",
       "primary": true
+    },
+    {
+      "connectionId": "c-work",
+      "id": "en.usa#holiday@group.v.calendar.google.com",
+      "name": "Holidays in United States",
+      "accessRole": "reader",
+      "primary": false
     }
   ],
-  "events": [],
+  "events": [
+    {
+      "calendarId": "en.usa#holiday@group.v.calendar.google.com",
+      "id": "thanksgiving",
+      "title": "Thanksgiving Day",
+      "start": "2026-11-26T00:00:00-08:00",
+      "end": "2026-11-27T00:00:00-08:00",
+      "allDay": true,
+      "transparency": "free",
+      "rawStatus": "transparent",
+      "attendeeCount": 0,
+      "selfResponse": "none"
+    }
+  ],
   "eventType": "30min",
   "day": "2026-11-26",
   "expect": []
@@ -460,10 +494,11 @@ matches at the start of the title, so "Team lunch" still blocks but "Lunch with 
 an exact match such as `/^(lunch|focus time)$/i` when that matters.
 
 ```js
-import { defineConfig, weekdays, dur } from "caloo";
+import { defineConfig, weekdays, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary],
   hours: (day) => weekdays(day, "09:00-17:00"),
@@ -537,10 +572,11 @@ export default defineConfig({
 blocks, which is usually what owners want.
 
 ```js
-import { defineConfig, weekdays, dur } from "caloo";
+import { defineConfig, weekdays, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary],
   hours: (day) => weekdays(day, "09:00-17:00"),
@@ -596,15 +632,16 @@ export default defineConfig({
 
 ## 10. Tentative counts as free; free events never block
 
-Caloo folds tentative into busy by default (`transparency` is `"busy"`). `event.rawStatus` and
+Daycal folds tentative into busy by default (`transparency` is `"busy"`). `event.rawStatus` and
 `event.response` keep the original, so an owner who treats "maybe" as free can say so. Events marked
 "Show as: free" have `transparency: "free"`.
 
 ```js
-import { defineConfig, weekdays, dur } from "caloo";
+import { defineConfig, weekdays, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary],
   hours: (day) => weekdays(day, "09:00-17:00"),
@@ -687,10 +724,11 @@ existing bookings of any type. `maxPerDay` counts only bookings of the same type
 within 15 minutes of the 10:00 intro, the 14:00 sync, and the 16:00 deep dive.
 
 ```js
-import { defineConfig, weekdays, dur } from "caloo";
+import { defineConfig, weekdays, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary],
   hours: (day) => weekdays(day, "09:00-17:00"),
@@ -748,10 +786,11 @@ not listed, so its events are ignored; the personal account's primary and its "F
 block. Bookings go into the work account.
 
 ```js
-import { defineConfig, weekdays, dur } from "caloo";
+import { defineConfig, weekdays, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary, accounts.personal.primary, accounts.personal.calendar("Family")],
   hours: (day) => weekdays(day, "09:00-17:00"),
@@ -847,10 +886,11 @@ in-person or phone is `"none"` with a `location`. Here it is 10:05 on the day an
 hour's notice, so the first slot is 11:30.
 
 ```js
-import { defineConfig, weekdays, dur } from "caloo";
+import { defineConfig, weekdays, dur } from "daycal";
 
 export default defineConfig({
   handle: "chris",
+  name: "Chris Lee",
   timezone: "America/Los_Angeles",
   calendars: ({ accounts }) => [accounts.work.primary],
   hours: (day) => weekdays(day, "09:00-17:00"),
@@ -892,5 +932,66 @@ export default defineConfig({
   "eventType": "zoom",
   "day": "2026-10-22",
   "expect": ["11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"]
+}
+```
+
+## 14. Bookings in a separate "Bookings" calendar
+
+By default bookings go into the account's primary calendar (`bookInto: ({ accounts }) => accounts.work`), next to
+everything else. Only when the owner asks to keep them apart, use `newCalendar`: Daycal creates a calendar with that
+name in the account when the first booking arrives and reuses it after. Leave it out of `calendars`: Daycal already
+counts its own bookings as busy. Bookings made before the change stay where they were written.
+
+```js
+import { defineConfig, weekdays, dur } from "daycal";
+
+export default defineConfig({
+  handle: "chris",
+  name: "Chris Lee",
+  timezone: "America/Los_Angeles",
+  calendars: ({ accounts }) => [accounts.work.primary],
+  hours: (day) => weekdays(day, "09:00-17:00"),
+  eventTypes: [{ slug: "30min", title: "30 minute chat", duration: dur("30m") }],
+  // The owner asked for bookings in their own calendar, apart from the rest of work.
+  bookInto: ({ accounts }) => accounts.work.newCalendar("Bookings"),
+});
+```
+
+```json
+{
+  "now": "2026-10-19T08:00:00-07:00",
+  "accounts": [{ "connectionId": "c-work", "label": "work", "email": "chris@acme.com", "provider": "google" }],
+  "calendars": [
+    {
+      "connectionId": "c-work",
+      "id": "chris@acme.com",
+      "name": "chris@acme.com",
+      "accessRole": "owner",
+      "primary": true
+    }
+  ],
+  "events": [
+    {
+      "calendarId": "chris@acme.com",
+      "id": "w1",
+      "title": "Planning",
+      "start": "2026-10-21T09:00:00-07:00",
+      "end": "2026-10-21T12:00:00-07:00"
+    }
+  ],
+  "eventType": "30min",
+  "day": "2026-10-21",
+  "expect": [
+    "12:00",
+    "12:30",
+    "13:00",
+    "13:30",
+    "14:00",
+    "14:30",
+    "15:00",
+    "15:30",
+    "16:00",
+    "16:30"
+  ]
 }
 ```

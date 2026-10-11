@@ -1,15 +1,15 @@
 {
-  "name": "caloo",
+  "name": "daycal",
   "owner": {
     "name": "Amla Labs",
     "url": "https://github.com/amlalabs"
   },
   "plugins": [
     {
-      "name": "caloo",
+      "name": "daycal",
       "source": "./",
-      "description": "Set up and maintain a Caloo booking page from your agent, or book a time on someone's Caloo page.",
-      "version": "1.0.0"
+      "description": "Get a page where people can book time with you, set up and kept right by your AI assistant (trips, holidays, focus blocks, several calendars), or book a time on someone else's Daycal page.",
+      "version": "2.1.2"
     }
   ]
 }

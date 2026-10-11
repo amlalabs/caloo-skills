@@ -1,19 +1,19 @@
 {
-  "name": "caloo",
-  "version": "1.0.0",
-  "description": "Set up and maintain a Caloo booking page from your agent, or book a time on someone's Caloo page.",
+  "name": "daycal",
+  "version": "2.1.2",
+  "description": "Get a page where people can book time with you, set up and kept right by your AI assistant (trips, holidays, focus blocks, several calendars), or book a time on someone else's Daycal page.",
   "author": {
-    "name": "Caloo",
-    "url": "https://caloo.ai"
+    "name": "Daycal",
+    "url": "https://daycal.io"
   },
-  "homepage": "https://caloo.ai/skills",
+  "homepage": "https://daycal.io/skills",
   "license": "MIT",
   "keywords": ["scheduling", "calendar", "booking", "mcp"],
   "mcpServers": {
-    "caloo": {
+    "daycal": {
       "type": "http",
-      "url": "https://caloo.ai/mcp"
+      "url": "https://daycal.io/mcp"
     }
   },
-  "repository": "https://github.com/amlalabs/caloo-skills"
+  "repository": "https://github.com/amlalabs/daycal-skills"
 }
