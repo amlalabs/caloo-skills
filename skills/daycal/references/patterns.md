@@ -996,13 +996,18 @@ export default defineConfig({
 }
 ```
 
-## 15. Turn off reminder emails
+## 15. Turn off reminder or booking emails
 
 On Pro, Daycal emails each invitee a reminder 24 hours and 1 hour before the meeting. An owner who would rather
 not send them (they remind people themselves, or the meetings are informal) says so, and `booking.reminders: false`
 turns them off for every booking, those already made included. Slots do not change. Setting it back to `true` (or
 removing it) sends the reminders still ahead; ones whose time passed while off are never sent late. The free plan
 sends no reminders either way.
+
+On every plan, Daycal also emails the owner (their account's address) about each new booking, and each move or
+cancellation the invitee makes, with the time and the calendar it went on. An owner who does not want those emails
+(their calendar already tells them) says so, and `booking.ownerEmails: false` stops them from the next booking on.
+The two are separate: turn off only the one the owner asked about.
 
 ```js
 import { defineConfig, weekdays, dur } from "daycal";

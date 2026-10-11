@@ -66,6 +66,7 @@ names start with "mcp__plugin_daycal_daycal__" instead.
       "mcp__daycal__get_errors",
       "mcp__daycal__get_logs",
       "mcp__daycal__explain",
+      "mcp__daycal__export_my_data",
       "mcp__daycal__billing_status",
       "mcp__daycal__list_agents"
     ]
@@ -253,6 +254,10 @@ that says what changed.
 - Other agents: `list_agents` shows every agent and API token with last use; `revoke_agent(client_id)` cuts off one
   client without affecting others.
 - Billing: see Plans below.
+- Their data: when the owner asks for a copy of everything Daycal keeps (rules history, bookings, connections, logs),
+  call `export_my_data`. Daycal emails a download link to the account's own address (it works for 24 hours, in a
+  browser where they confirm it's them); you get only where it went (`sentTo`, masked), never the data. Tell them to
+  check their email. Up to 5 a day: past that a request is refused with `retryAt`, when the next can be sent.
 - Leaving: `delete_account` ends every agent's access, revokes Google tokens, deletes the Stripe customer (ending
   any subscription) and deletes everything. It requires a confirmation string; only call it when the owner asked in
   so many words.
@@ -262,7 +267,9 @@ that says what changed.
 Free has everything for one Google account and all its calendars: rules.js, bookings, webhooks. The booking page
 shows "Booked with Daycal". Pro is $7/month, or $70/year (renews yearly; cancel any time): more than one Google
 account, no footer, and invitees get reminder emails 24 hours and 1 hour before. An owner who does not want those
-emails turns them off in rules.js with `booking: { reminders: false }` (patterns.md, case 15).
+emails turns them off in rules.js with `booking: { reminders: false }` (patterns.md, case 15). On every plan the owner
+gets an email for each booking, and each move or cancellation by the invitee, saying when it is and which calendar it
+went on; `booking: { ownerEmails: false }` turns those off.
 
 Mention Pro once, when a `push_config` result carries a `planNote`, and never upgrade without the owner's
 go-ahead. When they want it: `upgrade("pro-monthly")` (renews monthly) or `upgrade("pro-annual")` (renews yearly),
