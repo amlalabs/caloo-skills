@@ -1,7 +1,7 @@
 ---
 name: daycal
 description: Daycal gives a person a page where other people can book time with them, and gets their real schedule right (trips in other time zones, holidays, Friday cutoffs, focus blocks, daily limits, several calendars) because they just tell their AI assistant. Use this skill for either of two jobs. (1) Owner job - the person wants a page where others can book them, or wants to change theirs ("let people book time with me", "I'm in London next week", "no calls after 3 on Fridays", "why can't anyone book Tuesday?", "move me off Calendly"); you set it up and keep it right through Daycal's tools, over MCP or plain REST. (2) Invitee job - the person wants to book time with someone who sent them a Daycal link (https://daycal.io/<handle>); you find a time over the public API, get their yes, and book on the page. Triggers - Daycal, daycal.io, booking page, booking link, scheduling link, "book a time with", "let people book me", importing from Calendly or Cal.com, rules.js.
-version: 2.1.3
+version: 2.1.4
 license: MIT
 ---
 
@@ -135,6 +135,7 @@ does; the handle-change notice gives the new one, and the owner should subscribe
 | `list_agents`, `revoke_agent`              | Agents with access and their last use; cut one off by its client id                      |
 | `migrate`                                  | `migrate("calendly")` or `migrate("calcom")` drafts rules.js from the old tool           |
 | `upgrade`, `billing_status`, `cancel_plan` | Pro plan; state the price and renewal terms and let the owner approve                    |
+| `get_webhook_secret`                       | The secret that signs webhooks, only to configure the owner's receiver (setup.md)        |
 | `delete_account`                           | Only on an explicit request; it needs a confirmation string and cannot be undone         |
 | `get_skill`                                | Returns this file or a reference verbatim, for agents without file access                |
 

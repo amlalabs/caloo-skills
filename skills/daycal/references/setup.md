@@ -12,7 +12,9 @@ call, over MCP or plain REST: the same tools, arguments and answers either way. 
 
 ## 0. Get connected
 
-- No MCP client (a script, a headless agent, anything that only makes HTTP requests): the owner opens
+- No MCP client, or no way to receive the OAuth redirect (a script, a headless agent, anything that only makes HTTP
+  requests; OAuth sends the code through the owner's browser, so a loopback redirect reaches you only when you run on
+  the computer that browser runs on): the owner opens
   `https://daycal.io/token`, types their email, gets a 6-digit code (tell them to check spam if it is slow), and
   copies the token shown once to you. A new email creates the account. Send it as `Authorization: Bearer <token>`.
   - `GET https://daycal.io/api/me/tools` lists every tool with its description and `inputSchema` (the JSON Schema
@@ -34,11 +36,17 @@ call, over MCP or plain REST: the same tools, arguments and answers either way. 
   sign-in page. The owner types their email, gets a 6-digit code (tell them to check spam if it is slow), and
   approves. A new email creates the account; the same email from another agent lands in the same account. An API
   token works on `https://daycal.io/mcp` too.
+- Access: by default an agent can do everything below. The owner can give it less: an MCP client that asks for
+  OAuth scopes gets only those (`read`: the tools that change nothing; `write`: those and every tool that changes or
+  ends something; `billing`: `upgrade`, `cancel_plan` and the portal link in `billing_status`; `secrets`:
+  `get_webhook_secret`), and `https://daycal.io/token?access=read` makes a read-only API token. A tool the access
+  does not cover is left out of the tool list, and calling it answers 403 `insufficient_scope`: tell the owner what
+  it needs (they sign in again and approve it) instead of retrying.
 
 The verified email is the organizer and Reply-To on invites, so it must be one the owner reads.
 
 Claude Code asks before every tool call. If the owner wants the read-only tools to run without asking (every tool
-that changes something still asks), show them this for their `.claude/settings.json` and let them add it; never
+that changes something, and the billing and secret ones, still asks), show them this for their `.claude/settings.json` and let them add it; never
 edit their settings yourself. It assumes the server was added as `daycal`; installed with the daycal plugin, the
 names start with "mcp__plugin_daycal_daycal__" instead.
 
@@ -58,7 +66,6 @@ names start with "mcp__plugin_daycal_daycal__" instead.
       "mcp__daycal__get_logs",
       "mcp__daycal__explain",
       "mcp__daycal__billing_status",
-      "mcp__daycal__cancel_plan",
       "mcp__daycal__list_agents"
     ]
   }
@@ -233,8 +240,9 @@ that says what changed.
 - Bookings: `list_bookings` (upcoming by default) and `cancel_booking(id)`. Cancelling emails the invitee
   through Google; do it only for the booking the owner named.
 - Webhooks: set `webhooks: { onBooking, onCancel }` in rules.js; Daycal POSTs JSON to those URLs, signed with the
-  owner's secret (the webhook_signing field of `get_types`): the receiver checks `Daycal-Webhook-Signature` and should
-  reject anything unsigned. Never put that secret in rules.js.
+  owner's secret as the webhook_signing field of `get_types` describes: the receiver checks
+  `Daycal-Webhook-Signature` and should reject anything unsigned. `get_webhook_secret` returns the secret (it needs
+  the `secrets` scope): call it only to configure the owner's receiver, and put it there, never in rules.js or chat.
 - Other agents: `list_agents` shows every agent and API token with last use; `revoke_agent(client_id)` cuts off one
   client without affecting others.
 - Billing: see Plans below.
