@@ -11,7 +11,7 @@ The `daycal` [Agent Skill](https://agentskills.io) teaches that assistant both j
   MCP server, or the same tools over plain REST with an API token), always previewing and getting the owner's go-ahead before pushing. Already on Calendly or Cal.com? It imports
   the meeting types and hours from there.
 - **For someone booking:** find a time on a person's Daycal page over the public API, confirm it with them, and
-  book it on the page itself.
+  book it over the API.
 
 One skill, the same text for every agent.
 
@@ -21,7 +21,7 @@ skills/daycal/
   references/setup.md              owner onboarding and later changes, tool by tool
   references/stdlib.md             daycal.d.ts explained, every helper with one example
   references/patterns.md           worked rules.js cases with the slots they produce (engine-tested)
-  references/booking.md            booking on someone's behalf: slots over the API, booking on the page
+  references/booking.md            booking on someone's behalf: slots and booking over the API
   references/troubleshooting.md    tool errors, explain, get_errors, sync problems
 .claude-plugin/                    Claude Code plugin + marketplace manifests (skill + MCP server)
 ```

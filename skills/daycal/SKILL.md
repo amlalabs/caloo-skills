@@ -1,7 +1,7 @@
 ---
 name: daycal
-description: Daycal gives a person a page where other people can book time with them, and gets their real schedule right (trips in other time zones, holidays, Friday cutoffs, focus blocks, daily limits, several calendars) because they just tell their AI assistant. Use this skill for either of two jobs. (1) Owner job - the person wants a page where others can book them, or wants to change theirs ("let people book time with me", "I'm in London next week", "no calls after 3 on Fridays", "why can't anyone book Tuesday?", "move me off Calendly"); you set it up and keep it right through Daycal's tools, over MCP or plain REST. (2) Invitee job - the person wants to book time with someone who sent them a Daycal link (https://daycal.io/<handle>); you find a time over the public API, get their yes, and book on the page. Triggers - Daycal, daycal.io, booking page, booking link, scheduling link, "book a time with", "let people book me", importing from Calendly or Cal.com, rules.js.
-version: 2.1.4
+description: Daycal gives a person a page where other people can book time with them, and gets their real schedule right (trips in other time zones, holidays, Friday cutoffs, focus blocks, daily limits, several calendars) because they just tell their AI assistant. Use this skill for either of two jobs. (1) Owner job - the person wants a page where others can book them, or wants to change theirs ("let people book time with me", "I'm in London next week", "no calls after 3 on Fridays", "why can't anyone book Tuesday?", "move me off Calendly"); you set it up and keep it right through Daycal's tools, over MCP or plain REST. (2) Invitee job - the person wants to book time with someone who sent them a Daycal link (https://daycal.io/<handle>); you find a time over the public API, get their yes, and book it over the API (Daycal emails them a code to confirm). Triggers - Daycal, daycal.io, booking page, booking link, scheduling link, "book a time with", "let people book me", importing from Calendly or Cal.com, rules.js.
+version: 2.1.8
 license: MIT
 ---
 
@@ -41,7 +41,9 @@ References (open only the one you need):
 - [setup.md](references/setup.md): owner onboarding and later changes, tool by tool
 - [stdlib.md](references/stdlib.md): `daycal.d.ts` explained, every helper with one example
 - [patterns.md](references/patterns.md): a dozen worked rules.js cases with the slots they produce
-- [booking.md](references/booking.md): booking on someone's behalf: slots over the public API, the booking on the page
+- [booking.md](references/booking.md): booking on someone's behalf over the public API: slots, then the booking
+  confirmed with a code emailed to the person, with a booking link the owner gave them, or at once when the company
+  that runs you signs your requests
 - [troubleshooting.md](references/troubleshooting.md): tool errors, `explain`, `get_errors`, sync problems
 
 ## The two hard rules
@@ -127,6 +129,9 @@ does; the handle-change notice gives the new one, and the owner should subscribe
 | ------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | `list_versions`, `activate_version`        | History; roll back to a version that was live before (preview first if its handle moved) |
 | `list_bookings`, `cancel_booking`          | Owner's view of bookings; cancel only when the owner asks for that booking               |
+| `create_booking_link`                      | A single-use link for one person (or their agent) to book with; bind it to their email   |
+| `list_booking_links`                       | The unused links, never the link itself again                                            |
+| `revoke_booking_link`                      | End a link the owner no longer wants used                                                |
 | `explain`                                  | "Why is Tuesday 3pm not bookable?" — `explain(event_type, time)` walks the pipeline      |
 | `get_errors`                               | rules.js failures with the event or day that triggered them; check when slots look wrong |
 | `sync_now`                                 | Force a full calendar resync after the owner says an event is missing or stale           |

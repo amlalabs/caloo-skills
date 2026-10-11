@@ -62,6 +62,7 @@ names start with "mcp__plugin_daycal_daycal__" instead.
       "mcp__daycal__preview",
       "mcp__daycal__list_versions",
       "mcp__daycal__list_bookings",
+      "mcp__daycal__list_booking_links",
       "mcp__daycal__get_errors",
       "mcp__daycal__get_logs",
       "mcp__daycal__explain",
@@ -239,6 +240,12 @@ that says what changed.
 - Remove an account: edit rules.js so nothing references its label, push, then `remove_connection(id)`.
 - Bookings: `list_bookings` (upcoming by default) and `cancel_booking(id)`. Cancelling emails the invitee
   through Google; do it only for the booking the owner named.
+- Someone's AI assistant will book with the owner: anyone's agent can book on the page with a code Daycal emails
+  to the invitee, with nothing from the owner. To spare that step for a person the owner names, make a booking link:
+  `create_booking_link({ email, event_type?, days? })` (default 7 days, at most 30). It books once, with no bot
+  check and no code, and with `email` only that address may use it. Give the owner the returned `url` exactly as
+  returned to send to that person; it is shown only once. `list_booking_links` shows the unused ones (never the link
+  again), `revoke_booking_link(id)` ends one, and a handle change ends them all.
 - Webhooks: set `webhooks: { onBooking, onCancel }` in rules.js; Daycal POSTs JSON to those URLs, signed with the
   owner's secret as the webhook_signing field of `get_types` describes: the receiver checks
   `Daycal-Webhook-Signature` and should reject anything unsigned. `get_webhook_secret` returns the secret (it needs
