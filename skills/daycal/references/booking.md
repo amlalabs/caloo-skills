@@ -29,7 +29,8 @@ GET https://daycal.io/api/pages/<handle>
   "eventTypes": [
     { "slug": "30min", "title": "30 minute chat", "description": "", "duration": 30, "conferencing": "google-meet" }
   ],
-  "booking": { "note": true, "confirmation": "Talk soon!" }
+  "booking": { "note": true, "confirmation": "Talk soon!" },
+  "pageId": "k3Jx9QmTZp2vR8wL"
 }
 ```
 
@@ -91,11 +92,14 @@ body is the same whichever way you book:
   "name": "Dana Park",
   "email": "dana@example.com",
   "note": "Intro via Sam",
-  "tz": "America/New_York"
+  "tz": "America/New_York",
+  "pageId": "k3Jx9QmTZp2vR8wL"
 }
 ```
 
-`start` is the slot's `start` exactly as returned. `tz` is the person's IANA zone (used in emails).
+`start` is the slot's `start` exactly as returned. `tz` is the person's IANA zone (used in emails). `pageId` is the
+page's `pageId` from step 2: if the handle has moved to someone else since you read the page, the booking is refused
+with `409 page_changed` rather than sent to them; read the page again and check with the person.
 `note` is optional and only collected when the page's `booking.note` is true. Every way runs the same checks: the
 time is still open under the owner's rules, and the fields are valid.
 

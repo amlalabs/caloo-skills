@@ -9,7 +9,7 @@
       "name": "daycal",
       "source": "./",
       "description": "Get a page where people can book time with you, set up and kept right by your AI assistant (trips, holidays, focus blocks, several calendars), or book a time on someone else's Daycal page.",
-      "version": "2.1.10"
+      "version": "2.1.11"
     }
   ]
 }
