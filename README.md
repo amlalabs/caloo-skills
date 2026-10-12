@@ -41,8 +41,9 @@ yourself. An agent without an MCP client calls the same tools over REST with an 
 
 ## Development
 
-The public `amlalabs/daycal-skills` repository is generated from the Daycal monorepo by `tools/publish-skills.sh`;
-changes made directly there are overwritten by the next publish. In the monorepo:
+The public `amlalabs/daycal-skills` repository is generated from the Daycal monorepo by `tools/publish-skills.sh`,
+which CI runs after each production deploy, tagging each version `skill-v<version>` (one content per version); changes
+made directly there are overwritten by the next publish. In the monorepo:
 
 - `pnpm validate` checks the frontmatter, that SKILL.md stays under 300 lines and links every reference,
   that every MCP tool name matches `TOOL_NAMES` in `@daycal/types`, that every stdlib identifier exists in
