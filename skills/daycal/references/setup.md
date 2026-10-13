@@ -186,8 +186,8 @@ export default defineConfig({
 `preview(rules_js, 14)` validates the file and runs it against the owner's live cached events. Optional
 third argument `event_type` limits it to one slug. The result has:
 
-- `ok` and `error`: a syntax or runtime error, with the event or day being evaluated as `sample`. Fix it
-  and preview again.
+- `ok` and `error`: a syntax or runtime error, with the day being evaluated, or the event (its title, start
+  and end), as `sample`. Fix it and preview again.
 - `warnings`: missing calendars, clamped values, unknown labels. Read every one. "A calendar in accounts.work is
   counted but none of its N events in range block time" means a calendar (named in `freeCalendars`) whose events
   are all free, usually a holiday calendar: ask the owner, then move it to `daysOff` or drop it from `calendars`.
@@ -268,8 +268,8 @@ Free has everything for one Google account and all its calendars: rules.js, book
 shows "Booked with Daycal". Pro is $7/month, or $70/year (renews yearly; cancel any time): more than one Google
 account, no footer, and invitees get reminder emails 24 hours and 1 hour before. An owner who does not want those
 emails turns them off in rules.js with `booking: { reminders: false }` (patterns.md, case 15). On every plan the owner
-gets an email for each booking, and each move or cancellation by the invitee, saying when it is and which calendar it
-went on; `booking: { ownerEmails: false }` turns those off.
+gets an email for each booking, and each move or cancellation made through its reschedule-or-cancel link, saying when
+it is and which calendar it went on; `booking: { ownerEmails: false }` turns those off.
 
 Mention Pro once, when a `push_config` result carries a `planNote`, and never upgrade without the owner's
 go-ahead. When they want it: `upgrade("pro-monthly")` (renews monthly) or `upgrade("pro-annual")` (renews yearly),

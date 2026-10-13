@@ -1,7 +1,7 @@
 ---
 name: daycal
 description: Daycal gives a person a page where other people can book time with them, and gets their real schedule right (trips in other time zones, holidays, Friday cutoffs, focus blocks, daily limits, several calendars) because they just tell their AI assistant. Use this skill for either of two jobs. (1) Owner job - the person wants a page where others can book them, or wants to change theirs ("let people book time with me", "I'm in London next week", "no calls after 3 on Fridays", "why can't anyone book Tuesday?", "move me off Calendly"); you set it up and keep it right through Daycal's tools, over MCP or plain REST. (2) Invitee job - the person wants to book time with someone who sent them a Daycal link (https://daycal.io/<handle>); you find a time over the public API, get their yes, and book it over the API (Daycal emails them a code to confirm). Triggers - Daycal, daycal.io, booking page, booking link, scheduling link, "book a time with", "let people book me", importing from Calendly or Cal.com, rules.js.
-version: 2.1.13
+version: 2.1.14
 license: MIT
 ---
 
@@ -150,8 +150,8 @@ does; the handle-change notice gives the new one, and the owner should subscribe
 Free has everything for one Google account and all its calendars; the booking page shows "Booked with Daycal". Pro
 ($7/month, or $70/year; either renews until cancelled) connects more than one Google account, removes that footer, and
 emails invitees reminders 24 hours and 1 hour before (`booking: { reminders: false }` in rules.js turns them off;
-patterns.md, case 15). On every plan Daycal emails the owner about each booking, and each move or cancellation the
-invitee makes, with the time and the calendar it went on (`booking: { ownerEmails: false }` turns those off). Mention Pro once, when a `push_config` result carries a `planNote`; never call `upgrade`
+patterns.md, case 15). On every plan Daycal emails the owner about each booking, and each move or cancellation made
+through its reschedule-or-cancel link, with the time and the calendar it went on (`booking: { ownerEmails: false }` turns those off). Mention Pro once, when a `push_config` result carries a `planNote`; never call `upgrade`
 without the owner's go-ahead (setup.md, Plans).
 
 ## Rules of thumb

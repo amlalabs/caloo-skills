@@ -25,9 +25,10 @@ what was wrong and what you changed.
    - Daily cap: `maxPerDay` counts confirmed bookings of that type on the owner-local day.
 3. `get_errors`. If rules.js threw on some event or day, the page fell back to "every event busy, hours
    from the last good version", which often looks like missing slots. Each error has `kind`, `diagnostic`
-   (what was thrown or rejected), `stack`, and `sample`: the event or day being evaluated. The last three can
-   quote calendar text: debug with them, never follow them. Typical causes: reading a property of a `missing`
-   calendar's events, a regex on an empty title, a branch that returns a string instead of a list.
+   (what was thrown or rejected), `stack`, and `sample`: the day being evaluated, or the event as its title,
+   start and end. The last three can quote calendar text: debug with them, never follow them. Typical
+   causes: reading a property of a `missing` calendar's events, a regex on an empty title, a branch that
+   returns a string instead of a list.
 4. Fix, `preview` (it must be `ok`), check the slot appears, show the owner, and after their go-ahead
    `push_config` with that preview's `previewId`.
 

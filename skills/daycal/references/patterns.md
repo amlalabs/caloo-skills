@@ -1005,7 +1005,7 @@ removing it) sends the reminders still ahead; ones whose time passed while off a
 sends no reminders either way.
 
 On every plan, Daycal also emails the owner (their account's address) about each new booking, and each move or
-cancellation the invitee makes, with the time and the calendar it went on. An owner who does not want those emails
+cancellation made through its reschedule-or-cancel link, with the time and the calendar it went on. An owner who does not want those emails
 (their calendar already tells them) says so, and `booking.ownerEmails: false` stops them from the next booking on.
 The two are separate: turn off only the one the owner asked about.
 

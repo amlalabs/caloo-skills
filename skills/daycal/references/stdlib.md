@@ -50,8 +50,8 @@ export default defineConfig({
   true; the free plan sends none either way). `false` turns them off for every booking, those already made included;
   `true` again resumes the ones still ahead, never ones whose time passed while off (patterns.md, case 15).
   `booking.ownerEmails`: Daycal emails the owner's account address about each new booking, and each move or
-  cancellation the invitee makes, with the time and the calendar it went on (default true, every plan). `false` stops
-  them from the next change on.
+  cancellation made through its reschedule-or-cancel link, with the time and the calendar it went on (default true,
+  every plan). `false` stops them from the next change on.
 - `webhooks.onBooking`, `webhooks.onCancel`: URLs that receive a JSON POST per booking or cancellation.
 
 ## ctx
